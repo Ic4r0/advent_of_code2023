@@ -1,2 +1,2 @@
-# advent_of_code2023
-My attempt at Advent of Code 2023
+# Advent of Code 2023
+My attempt at [Advent of Code 2023](https://adventofcode.com/) written in ***Python***
