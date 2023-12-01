@@ -10,19 +10,44 @@ from utils.parse_input import parse_by_line
 from re import finditer
 
 
+# ['0', '1', ..., '9']
+DIGITS_LIST = [str(dig) for dig in list(map(lambda x: x, range(0, 10)))]
+# Stringified digit to be replaced with a similar string with the corresponding number inside it (needed for
+# overlapping stringified digits)
+STRINGIFIED_DIGITS = {
+    'one': 'o1e',
+    'two': 't2o',
+    'three': 'th3ee',
+    'four': 'fo4r',
+    'five': 'fi5e',
+    'six': 's6x',
+    'seven': 'se7en',
+    'eight': 'ei8ht',
+    'nine': 'ni9e'
+}
+
+
 # modules
+def digit_extractor(row: str) -> str:
+    """ Method to extract the numeric part of each row
+
+    :param row: row of the input list
+    :return: string containing all the digits of row
+    """
+    remapped_row = map(lambda x: (x if x in DIGITS_LIST else 0), row)
+    filtered_row = filter(lambda x: (x != 0), remapped_row)
+    return ''.join(filtered_row)
+
+
 def part_1(input_list: list) -> int:
     """ Code for the 1st part of the 1st day of Advent of Code
 
     :param input_list: input list
     :return: numeric result
     """
-    digits_list = [str(dig) for dig in list(map(lambda x: x, range(0, 10)))]
     numbers_list = []
     for row in input_list[:]:
-        remapped_row = map(lambda x: (x if x in digits_list else 0), row)
-        filtered_row = filter(lambda x: (x != 0), remapped_row)
-        joined_row = ''.join(filtered_row)
+        joined_row = digit_extractor(row)
         numbers_list.append(int(joined_row[0] + joined_row[-1]))
     return sum(numbers_list)
 
@@ -33,29 +58,12 @@ def part_2(input_list: list) -> int:
     :param input_list: input list
     :return: numeric result
     """
-    stringified_digit = {
-        'one': 1,
-        'two': 2,
-        'three': 3,
-        'four': 4,
-        'five': 5,
-        'six': 6,
-        'seven': 7,
-        'eight': 8,
-        'nine': 9
-    }
-    digits_list = [str(dig) for dig in list(map(lambda x: x, range(0, 10)))]
     numbers_list = []
     for row in input_list[:]:
-        numbers_idxs = []
-        for idx, ch in enumerate(row):
-            if ch in digits_list:
-                numbers_idxs.append([ch, idx])
-        for number in stringified_digit:
-            for matched in finditer(number, row):
-                numbers_idxs.append([str(stringified_digit[number]), matched.start()])
-        numbers_idxs.sort(key=lambda x: x[1])
-        numbers_list.append(int(numbers_idxs[0][0] + numbers_idxs[-1][0]))
+        for str_number in STRINGIFIED_DIGITS:
+            row = row.replace(str_number, STRINGIFIED_DIGITS[str_number])
+        joined_row = digit_extractor(row)
+        numbers_list.append(int(joined_row[0] + joined_row[-1]))
     return sum(numbers_list)
 
 
