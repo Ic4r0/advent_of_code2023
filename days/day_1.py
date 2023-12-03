@@ -10,7 +10,7 @@ from utils.parse_input import parse_by_line
 
 
 # ['0', '1', ..., '9']
-DIGITS_LIST = [str(dig) for dig in list(map(lambda x: x, range(0, 10)))]
+DIGITS_LIST = [str(dig) for dig in list(range(0, 10))]
 # Stringified digit to be replaced with a similar string with the corresponding number inside it (needed for
 # overlapping stringified digits)
 STRINGIFIED_DIGITS = {
