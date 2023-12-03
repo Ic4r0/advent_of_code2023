@@ -1,4 +1,4 @@
-""" Day 3: NA
+""" Day 3: Gear Ratios
 
 Author: Ic4r0 - https://github.com/Ic4r0
 
