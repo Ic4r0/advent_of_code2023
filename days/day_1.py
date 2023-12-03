@@ -7,7 +7,6 @@ Created: 27th November 2023
 
 # imports
 from utils.parse_input import parse_by_line
-from re import finditer
 
 
 # ['0', '1', ..., '9']
