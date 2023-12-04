@@ -1,4 +1,4 @@
-""" Day 4: NA
+""" Day 4: Scratchcards
 
 Author: Ic4r0 - https://github.com/Ic4r0
 
@@ -10,71 +10,46 @@ from utils.parse_input import parse_by_line
 
 
 # modules
-def check_row_column(board: list, drawn_numbers: list) -> bool:
-    complete_line = False
-    for row in board:
-        if all(number in drawn_numbers for number in row):
-            complete_line = True
-            break
-    if not complete_line:
-        for column_idx in range(5):
-            column = [row[column_idx] for row in board]
-            if all(number in drawn_numbers for number in column):
-                complete_line = True
-                break
-    return complete_line
-
-
-def part_1(draws_list: list, boards_dict: dict) -> int:
+def part_1(input_list: list) -> int:
     """ Code for the 1st part of the 4th day of Advent of Code
 
-    :param draws_list: draws list
-    :param boards_dict: dict containing all boards
+    :param input_list: input list
     :return: numeric result
     """
-    drawn = []
-    bingo = False
-    bingo_board = []
-    for draw in draws_list:
-        drawn.append(draw)
-        for board_idx in boards_dict:
-            bingo = check_row_column(boards_dict.get(board_idx), drawn)
-            if bingo:
-                bingo_board = boards_dict.get(board_idx)
-                break
-        if bingo:
-            break
+    winning_points = 0
+    for winning, my_numbers in input_list:
+        found_numbers = []
+        for number in my_numbers:
+            if number in winning:
+                found_numbers.append(number)
+        if len(found_numbers) == 1:
+            winning_points += 1
+        elif len(found_numbers) > 1:
+            winning_points += 2 ** (len(found_numbers) - 1)
 
-    return (sum(sum([elem for elem in row if elem not in drawn]) for row in bingo_board)) * drawn[-1]
+    return winning_points
 
 
-def part_2(draws_list: list, boards_dict: dict) -> int:
+def part_2(input_list: list) -> int:
     """ Code for the 2nd part of the 4th day of Advent of Code
 
-    :param draws_list: draws list
-    :param boards_dict: dict containing all boards
+    :param input_list: input list
     :return: numeric result
     """
-    drawn = []
-    bingo = False
-    bingo_board = []
-    for draw in draws_list:
-        drawn.append(draw)
-        boards_to_delete = []
-        for board_idx in boards_dict:
-            bingo = check_row_column(boards_dict.get(board_idx), drawn)
-            if bingo and len(boards_dict) == 1:
-                bingo_board = boards_dict.get(board_idx)
-                break
-            elif bingo:
-                bingo_board = boards_dict.get(board_idx)
-                bingo = False
-                boards_to_delete.append(board_idx)
-        for board in boards_to_delete:
-            del boards_dict[board]
-        if bingo:
-            break
-    return (sum(sum([elem for elem in row if elem not in drawn]) for row in bingo_board)) * drawn[-1]
+    input_dict = {idx: [scratchcard] for idx, scratchcard in enumerate(input_list)}
+    for idx, scratchcards_list in input_dict.items():
+        found_numbers = 0
+        winning, my_numbers = scratchcards_list[0]
+        for number in my_numbers:
+            if number in winning:
+                found_numbers += 1
+        for val in range(found_numbers):
+            if idx + val + 1 in input_dict:
+                scratchcard = input_dict[idx + val + 1][0]
+                for _ in range(len(input_dict[idx])):
+                    input_dict[idx + val + 1].append(scratchcard)
+    results = list(map(lambda x: (len(x)), input_dict.values()))
+    return sum(results)
 
 
 def day_4(selected_part: int = None, test: bool = False):
@@ -84,20 +59,13 @@ def day_4(selected_part: int = None, test: bool = False):
     :param test: flag to use test input
     """
     input_list = parse_by_line(4, int_list=False, is_test=test)
-    draws = [int(number) for number in input_list[0].split(',')]
-    boards = dict()
-    idx = 0
-    n_board = 0
-    boards_list = input_list[2:]
-    while idx < len(boards_list):
-        single_board = [[int(elem) for elem in row.split()] for row in boards_list[idx:idx+5]]
-        boards[n_board] = single_board
-        idx += 6
-        n_board += 1
-
+    separated_numbers = [
+        [[int(val) for val in winning.split()], [int(val) for val in my_numbers.split()]]
+        for winning, my_numbers in [line.split(': ')[1].split(' | ') for line in input_list]
+    ]
     if selected_part == 1 or not selected_part:
-        result_part_1 = part_1(draws, boards)
+        result_part_1 = part_1(separated_numbers)
         print('The result of 1st part of the 4th day of AoC is: ' + str(result_part_1))
     if selected_part == 2 or not selected_part:
-        result_part_2 = part_2(draws, boards)
+        result_part_2 = part_2(separated_numbers)
         print('The result of 2nd part of the 4th day of AoC is: ' + str(result_part_2))
