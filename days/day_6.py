@@ -1,4 +1,4 @@
-""" Day 6: NA
+""" Day 6: Wait For It
 
 Author: Ic4r0 - https://github.com/Ic4r0
 
@@ -6,8 +6,8 @@ Created: 27th November 2023
 """
 
 # imports
-from utils.parse_input import parse_single_line
-from collections import Counter
+from utils.parse_input import parse_by_line
+from math import prod
 
 
 # modules
@@ -17,17 +17,19 @@ def part_1(input_list: list) -> int:
     :param input_list: input list
     :return: numeric result
     """
-    days_limit = 80
-    for _ in range(days_limit):
-        temp_input_list = input_list[:]
-        for idx, internal_timer in enumerate(input_list):
-            if internal_timer > 0:
-                temp_input_list[idx] -= 1
-            else:
-                temp_input_list[idx] = 6
-                temp_input_list.append(8)
-        input_list = temp_input_list[:]
-    return len(input_list)
+    different_ways_to_win = []
+    for idx in range(len(input_list[0])):
+        different_ways_to_win_current_race = 0
+        time = input_list[0][idx]
+        distance = input_list[1][idx]
+        for pressing_time in range(time):
+            remaining_time = time - pressing_time
+            distance_reached = remaining_time * pressing_time
+            if distance_reached > distance:
+                different_ways_to_win_current_race += 1
+        if different_ways_to_win_current_race != 0:
+            different_ways_to_win.append(different_ways_to_win_current_race)
+    return prod(different_ways_to_win)
 
 
 def part_2(input_list: list) -> int:
@@ -36,22 +38,15 @@ def part_2(input_list: list) -> int:
     :param input_list: input list
     :return: numeric result
     """
-    days_limit = 256
-    timers = Counter(input_list)
-    for _ in range(days_limit):
-        temp_timers = {idx: 0 for idx in range(9)}
-        temp_timers[8] = timers.get(0, 0)
-        temp_timers[7] = timers.get(8, 0)
-        temp_timers[6] = timers.get(7, 0) + timers.get(0, 0)
-        temp_timers[5] = timers.get(6, 0)
-        temp_timers[4] = timers.get(5, 0)
-        temp_timers[3] = timers.get(4, 0)
-        temp_timers[2] = timers.get(3, 0)
-        temp_timers[1] = timers.get(2, 0)
-        temp_timers[0] = timers.get(1, 0)
-        timers = temp_timers.copy()
-
-    return sum(timers.values())
+    different_ways_to_win = 0
+    time = int(''.join(str(elem) for elem in input_list[0]))
+    distance = int(''.join(str(elem) for elem in input_list[1]))
+    for pressing_time in range(time):
+        remaining_time = time - pressing_time
+        distance_reached = remaining_time * pressing_time
+        if distance_reached > distance:
+            different_ways_to_win += 1
+    return different_ways_to_win
 
 
 def day_6(selected_part: int = None, test: bool = False):
@@ -60,7 +55,9 @@ def day_6(selected_part: int = None, test: bool = False):
     :param selected_part: selected Advent of Code part of the 6th day
     :param test: flag to use test input
     """
-    input_list = [int(elem) for elem in parse_single_line(6, is_test=test).split(',')]
+    input_list = [
+        [int(elem) for elem in line.split()[1:]] for line in parse_by_line(6, int_list=False, is_test=test)
+    ]
 
     if selected_part == 1 or not selected_part:
         result_part_1 = part_1(input_list[:])
